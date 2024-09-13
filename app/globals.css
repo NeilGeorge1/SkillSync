@@ -4,52 +4,15 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
   }
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
-  min-height: 100vh;
-  background-color: white;
-  color: black;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  line-height: 1.6;
-}
-
-nav {
-  background-color: #2d3748; /* Gray-800 */
+  color: rgb(245, 238, 238);
   padding: 1rem;
-}
-
-nav a {
-  color: white;
-  text-decoration: none;
-  margin-right: 1rem;
-}
-
-nav a:hover {
-  text-decoration: underline;
-}
-
-main {
-  padding: 1rem;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
 }
