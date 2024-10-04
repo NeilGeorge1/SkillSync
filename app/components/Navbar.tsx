@@ -32,6 +32,13 @@ const Navbar = () => {
               </span>
             </Link>
           </li>
+          <li>
+            <Link href="/signup">
+              <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded">
+                Sign Up
+              </span>
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

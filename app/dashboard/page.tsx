@@ -1,6 +1,31 @@
+'use client'
 import Link from 'next/link';
+import {useAuthState} from 'react-firebase-hooks/auth';
+import {auth} from '@/app/firebase/config';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
 
 const HomePage = () => {
+  const [user] = useAuthState(auth);
+  const router = useRouter();
+  const userSession = sessionStorage.getItem('user');
+
+  // Check if user is not logged in
+  if (!user && !userSession) {
+    router.push('/');
+  }
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      sessionStorage.removeItem('user');
+      router.push('/signup'); // Redirect to sign-up after logging out
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navbar */}
@@ -23,9 +48,9 @@ const HomePage = () => {
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-gray-400">
-                Contact
-              </Link>
+              <a href="#" onClick={handleLogout} className="hover:text-gray-400">
+                Log Out
+              </a>
             </li>
           </ul>
         </div>
@@ -35,7 +60,7 @@ const HomePage = () => {
       <section className="text-center p-16">
         <h1 className="text-4xl font-bold mb-4">Welcome to SkillSync</h1>
         <p className="text-lg mb-6">Connecting mentors and mentees for collaborative project development.</p>
-        <Link href="/signup" className="bg-white text-black px-6 py-3 rounded-md hover:bg-gray-200 transition-colors">
+        <Link href="/dashboard" className="bg-white text-black px-6 py-3 rounded-md hover:bg-gray-200 transition-colors">
           Get Started
         </Link>
       </section>
@@ -81,7 +106,6 @@ const HomePage = () => {
               View Project
             </Link>
           </div>
-          {/* Add more pairs as needed */}
         </div>
       </section>
 

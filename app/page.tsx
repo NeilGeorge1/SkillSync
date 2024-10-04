@@ -4,7 +4,6 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-
       {/* Hero Section */}
       <div className="hero min-h-screen bg-black">
         <div className="hero-content text-center">
