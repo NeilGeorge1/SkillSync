@@ -1,68 +1,54 @@
-'use client'
+'use client';
+import Navbar from '../components/Navbar';
 import Link from 'next/link';
-import {useAuthState} from 'react-firebase-hooks/auth';
-import {auth} from '@/app/firebase/config';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
+import { db } from '@/app/firebase/config'; // Import Firestore database
+import { doc, getDoc } from 'firebase/firestore'; // Import Firestore methods
+import { useEffect, useState } from 'react';
 
 const HomePage = () => {
   const [user] = useAuthState(auth);
   const router = useRouter();
   const userSession = sessionStorage.getItem('user');
+  const [firstName, setFirstName] = useState(''); // State to hold first name
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const docRef = doc(db, 'users', user.uid); // Reference to the document
+
+      try {
+        const docSnap = await getDoc(docRef); // Fetch the document
+
+        if (docSnap.exists()) {
+          const fullName = docSnap.data().fullName; // Get full name from document
+          const firstName = fullName.split(' ')[0]; // Extract first name
+          setFirstName(firstName); // Set the first name to state
+        } else {
+          console.log('No such document!'); // Handle the case where the document doesn't exist
+        }
+      } catch (error) {
+        console.error('Error fetching document:', error); // Log the error for further investigation
+      }
+    };
+
+    fetchData(); // Call the fetch function
+  }, []); // Empty dependency array means it runs once on mount
 
   // Check if user is not logged in
   if (!user && !userSession) {
     router.push('/');
   }
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      sessionStorage.removeItem('user');
-      router.push('/signup'); // Redirect to sign-up after logging out
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Navbar */}
-      <div className="navbar bg-gray-800 p-4 shadow-md">
-        <div className="flex-1">
-          <Link href="/" className="text-white text-2xl font-semibold tracking-wide">
-            SkillSync
-          </Link>
-        </div>
-        <div className="flex-none">
-          <ul className="menu menu-horizontal space-x-6">
-            <li>
-              <Link href="/profile" className="hover:text-gray-400">
-                Profile
-              </Link>
-            </li>
-            <li>
-              <Link href="/projects" className="hover:text-gray-400">
-                Projects
-              </Link>
-            </li>
-            <li>
-              <a href="#" onClick={handleLogout} className="hover:text-gray-400">
-                Log Out
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      {/* Hero Section */}
+      <Navbar />
+      {/* Hero Section */}  
       <section className="text-center p-16">
-        <h1 className="text-4xl font-bold mb-4">Welcome to SkillSync</h1>
-        <p className="text-lg mb-6">Connecting mentors and mentees for collaborative project development.</p>
-        <Link href="/dashboard" className="bg-white text-black px-6 py-3 rounded-md hover:bg-gray-200 transition-colors">
-          Get Started
-        </Link>
+        <h1 style={{ fontSize: '3rem', fontWeight: 'bold' }}>Welcome, {firstName}!</h1> {/* Display first name here */}
+        <p className="text-lg mb-6">This is your dashboard to collaborative project development.</p>
       </section>
 
       {/* Features Section */}
