@@ -4,42 +4,51 @@ import Link from 'next/link';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'firebase/auth';
-import { db } from '@/app/firebase/config'; // Import Firestore database
-import { doc, getDoc } from 'firebase/firestore'; // Import Firestore methods
 import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/app/firebase/config';
 
 const HomePage = () => {
-  const [user] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth); // Use loading state
   const router = useRouter();
-  const userSession = sessionStorage.getItem('user');
-  const [firstName, setFirstName] = useState(''); // State to hold first name
+  const [firstName, setFirstName] = useState('');
+  const [isLoading, setIsLoading] = useState(true); // New loading state for fetching user data
 
   useEffect(() => {
-    const fetchData = async () => {
-      const docRef = doc(db, 'users', user.uid); // Reference to the document
+    // Check if the user is signed in
+    if (loading) return; // Wait for loading to complete
 
-      try {
-        const docSnap = await getDoc(docRef); // Fetch the document
+    if (!user) {
+      // Redirect to home if user is not signed in
+      router.push('/');
+    } else {
+      // User is signed in, fetch user data
+      const fetchData = async () => {
+        const docRef = doc(db, 'users', user.uid);
 
-        if (docSnap.exists()) {
-          const fullName = docSnap.data().fullName; // Get full name from document
-          const firstName = fullName.split(' ')[0]; // Extract first name
-          setFirstName(firstName); // Set the first name to state
-        } else {
-          console.log('No such document!'); // Handle the case where the document doesn't exist
+        try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const fullName = docSnap.data().fullName;
+            const firstName = fullName.split(' ')[0]; // Extract first name
+            setFirstName(firstName);
+          } else {
+            console.log('No such document!');
+          }
+        } catch (error) {
+          console.error('Error fetching document:', error);
+        } finally {
+          setIsLoading(false); // Set loading to false after fetching
         }
-      } catch (error) {
-        console.error('Error fetching document:', error); // Log the error for further investigation
-      }
-    };
+      };
 
-    fetchData(); // Call the fetch function
-  }, []); // Empty dependency array means it runs once on mount
+      fetchData(); // Call fetchData if user is signed in
+    }
+  }, [user, loading, router]); // Add dependencies
 
-  // Check if user is not logged in
-  if (!user && !userSession) {
-    router.push('/');
+  // Show loading indicator while fetching user data
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
   }
 
   return (
@@ -47,7 +56,7 @@ const HomePage = () => {
       <Navbar />
       {/* Hero Section */}  
       <section className="text-center p-16">
-        <h1 style={{ fontSize: '3rem', fontWeight: 'bold' }}>Welcome, {firstName}!</h1> {/* Display first name here */}
+        <h1 style={{ fontSize: '3rem', fontWeight: 'bold' }}>Welcome, {firstName}!</h1>
         <p className="text-lg mb-6">This is your dashboard to collaborative project development.</p>
       </section>
 

@@ -20,71 +20,75 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-gray-800 shadow-md py-0">
-      <div className="flex-auto">
+    <nav className="navbar bg-black px-6 py-4 shadow-lg">
+      <div className="container mx-auto flex justify-between items-center">
         {/* Brand/logo */}
-        <Link href="/" className="text-white text-2xl font-semibold tracking-wide">
+        <Link href="/" className="text-white text-2xl font-semibold tracking-wide hover:opacity-80 transition-opacity">
           SkillSync
         </Link>
-      </div>
 
-      <div className="flex-none">
-        {isAuthenticated ? (
-          <ul className="menu menu-horizontal px-4 space-x-2">
-            <li>
-              <Link href="/profile">
-                <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded">
-                  Profile
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/projects">
-                <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded">
-                  Projects
-                </span>
-              </Link>
-            </li>
-            <li>
-              <a href="#" onClick={handleLogout} className="text-white hover:text-gray-400 transition-colors px-1 py-1 rounded">
-                Log Out
-              </a>
-            </li>
-          </ul>
-        ) : (
-          <ul className="menu menu-horizontal px-4 space-x-2">
-            <li>
-              <Link href="/login">
-                <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded">
-                  Login
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/dashboard">
-                <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded">
-                  Dashboard
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/contact-us">
-                <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded">
-                  Contact Us
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link href="/signup">
-                <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded">
-                  Sign Up
-                </span>
-              </Link>
-            </li>
-          </ul>
-        )}
+        <div className="flex items-center space-x-6">
+          {isAuthenticated ? (
+            <ul className="flex space-x-6">
+              <li>
+                <Link href="/profile">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2">
+                    Profile
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/projects">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2">
+                    Projects
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2">
+                    Dashboard
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  onClick={handleLogout}
+                  className="text-white hover:text-gray-400 transition-colors px-4 py-2"
+                >
+                  Log Out
+                </a>
+              </li>
+            </ul>
+          ) : (
+            <ul className="flex space-x-6">
+              <li>
+                <Link href="/login">
+                  <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded-md">
+                    Login
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact-us">
+                  <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded-md">
+                    Contact Us
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/signup">
+                  <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded-md">
+                    Sign Up
+                  </span>
+                </Link>
+              </li>
+            </ul>
+          )}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

@@ -1,79 +1,89 @@
 'use client';
 import Navbar from "../components/Navbar";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "@/app/firebase/config"; // Import your Firebase config
-import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/app/firebase/config"; // Import Firestore database
+import { collection, doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase/config"; // Adjust the path as necessary
+import React, { useEffect, useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../firebase/config'; // Adjust the import path for your auth configuration
+import dayjs from 'dayjs'; // For formatting dates
 
-export default function Profile() {
-  const [user, loadingUser] = useAuthState(auth); // Get the current authenticated user
-  const [profileData, setProfileData] = useState(null); // State to hold profile data
-  const [loadingProfile, setLoadingProfile] = useState(true); // State to track loading
+// Define an interface for user data
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  aboutMe: string;
+  mainDomain: string;
+  subDomain: string;
+  createdAt: Date;
+}
+
+const UserProfile = () => {
+  const [user, loading] = useAuthState(auth); // Get the logged-in user
+  const [userData, setUserData] = useState<User | null>(null); // Store single user data
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (loadingUser) return; // Exit if user is still loading
-      if (!user) {
-        console.error("No user is authenticated.");
-        setLoadingProfile(false);
-        return; // Exit if there is no user
-      }
+    const fetchUserData = async () => {
+      if (!user) return; // Return if no user is logged in
 
-      const docRef = doc(db, 'users', user.uid); // Reference to the user document using UID
-      try {
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfileData(docSnap.data()); // Set the profile data
-        } else {
-          console.error('No such document!');
-          setProfileData(null); // No profile data found
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      } finally {
-        setLoadingProfile(false); // Set loading to false
+      const userDocRef = doc(db, 'users', user.uid); // Use user UID to get the document
+      const userDoc = await getDoc(userDocRef); // Fetch the document
+
+      if (userDoc.exists()) {
+        const data = {
+          id: userDoc.id,
+          ...userDoc.data(),
+          createdAt: userDoc.data().createdAt.toDate(), // Convert Firestore timestamp to JS Date
+        } as User; // Type assertion
+        setUserData(data); // Save the fetched data
+      } else {
+        console.log("No such document!");
       }
     };
 
-    fetchUserProfile();
-  }, [user, loadingUser]); // Fetch data when user changes
+    fetchUserData();
+  }, [user]);
 
-  if (loadingProfile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-400">Loading profile...</p>
-      </div>
-    );
-  }
-
-  if (!profileData) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-400">No profile data available.</p>
-      </div>
-    );
+  if (loading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
 
   return (
-    <div>
-      <Navbar />
-      <div className="min-h-screen text-gray-100 flex items-center justify-center px-6 py-10">
-        <div className="bg-gray-900 bg-opacity-70 shadow-xl p-10 rounded-2xl max-w-lg w-full">
-          <div className="flex flex-col items-center">
-            <h1 className="text-4xl font-bold mt-6 text-gray-200">{profileData.fullName}</h1>
-            <p className="text-sm text-gray-400 mt-2">
-              {profileData.mainDomain} | {profileData.subDomain}
-            </p>
+    <div className="min-h-screen flex flex-col items-center bg-black p-6">
+      <Navbar/>
+      {userData ? (
+        <div className="bg-gray-900 shadow-md rounded-lg p-6 w-full max-w-2xl mt-8">
+          <div className="flex items-center space-x-6 mb-4">
+            <img
+              className="w-24 h-24 rounded-full shadow-lg"
+              src={`https://ui-avatars.com/api/?name=${userData.fullName}&background=random&color=fff`} // Dynamic avatar generation with white text
+              alt="User avatar"
+            />
+            <div>
+              <h2 className="text-3xl font-semibold text-white">{userData.fullName}</h2>
+              <p className="text-gray-400">{userData.email}</p>
+              <p className="text-sm text-gray-500">
+                Joined on {dayjs(userData.createdAt).format('MMMM D, YYYY')}
+              </p>
+            </div>
           </div>
-          <div className="mt-8 text-center">
-            <h2 className="text-xl font-medium text-gray-100">About Me</h2>
-            <p className="mt-4 text-gray-400">
-              {profileData.aboutMe || "This user hasn't provided an about section yet."}
-            </p>
+
+          <div className="border-t border-gray-700 mt-4 pt-4">
+            <h3 className="text-lg font-semibold text-white mb-2">About Me</h3>
+            <p className="text-gray-300 text-base mb-4">{userData.aboutMe}</p>
+
+            <h3 className="text-lg font-semibold text-white mb-2">Main Domain</h3>
+            <p className="text-gray-300 text-base mb-4">{userData.mainDomain}</p>
+
+            <h3 className="text-lg font-semibold text-white mb-2">Sub Domain</h3>
+            <p className="text-gray-300 text-base">{userData.subDomain}</p>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="text-center text-gray-300 text-xl">No user information available.</div>
+      )}
     </div>
   );
-}
+};
+
+export default UserProfile;

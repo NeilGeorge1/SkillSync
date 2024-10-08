@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from '@/app/firebase/config';
 import { db } from '@/app/firebase/config';  // Import Firestore database
-import { collection, addDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';  // Use `setDoc` and `doc`
 
 const SignUp = () => {
   const [email, setEmail] = useState<string>('');  // Explicit type for email
@@ -53,10 +53,10 @@ const SignUp = () => {
         setErrorMsg(''); // Clear any previous error messages
         setSuccessMsg('Account created successfully!');
 
-        // Firestore database write
+        // Firestore database write using `setDoc` and UID as the document ID
         try {
-          const usersCollection = collection(db, 'users');
-          await addDoc(usersCollection, {
+          const userDocRef = doc(db, 'users', res.user.uid);  // Create a reference to the user's document with UID as document ID
+          await setDoc(userDocRef, {
             uid: res.user.uid,
             fullName,
             mainDomain,
