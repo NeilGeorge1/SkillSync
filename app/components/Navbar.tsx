@@ -20,10 +20,10 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar bg-black px-6 py-4 shadow-lg">
+    <nav className="navbar bg-gray-900 px-6 py-4 shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
         {/* Brand/logo */}
-        <Link href="/" className="text-white text-2xl font-semibold tracking-wide hover:opacity-80 transition-opacity">
+        <Link href="/" className="text-white text-2xl font-bold tracking-wide hover:opacity-80 transition-opacity">
           SkillSync
         </Link>
 
@@ -32,21 +32,21 @@ const Navbar = () => {
             <ul className="flex space-x-6">
               <li>
                 <Link href="/profile">
-                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
                     Profile
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/projects">
-                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
                     Projects
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/dashboard">
-                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
                     Dashboard
                   </span>
                 </Link>
@@ -55,7 +55,7 @@ const Navbar = () => {
                 <a
                   href="#"
                   onClick={handleLogout}
-                  className="text-white hover:text-gray-400 transition-colors px-4 py-2"
+                  className="text-white hover:text-red-500 transition-colors px-4 py-2 rounded-md"
                 >
                   Log Out
                 </a>
@@ -65,21 +65,21 @@ const Navbar = () => {
             <ul className="flex space-x-6">
               <li>
                 <Link href="/login">
-                  <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded-md">
+                  <span className="text-white hover:bg-white hover:text-gray-900 transition-colors px-4 py-2 rounded-md">
                     Login
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/contact-us">
-                  <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded-md">
+                  <span className="text-white hover:bg-white hover:text-gray-900 transition-colors px-4 py-2 rounded-md">
                     Contact Us
                   </span>
                 </Link>
               </li>
               <li>
                 <Link href="/signup">
-                  <span className="text-white hover:text-black hover:bg-white transition-colors px-4 py-2 rounded-md">
+                  <span className="text-white hover:bg-white hover:text-gray-900 transition-colors px-4 py-2 rounded-md">
                     Sign Up
                   </span>
                 </Link>

@@ -49,7 +49,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-black p-6">
+    <div className="min-h-screen flex flex-col items-center p-6">
       <Navbar/>
       {userData ? (
         <div className="bg-gray-900 shadow-md rounded-lg p-6 w-full max-w-2xl mt-8">
@@ -80,7 +80,7 @@ const UserProfile = () => {
           </div>
         </div>
       ) : (
-        <div className="text-center text-gray-300 text-xl">No user information available.</div>
+        <div className="text-center text-gray-300 text-xl">loading.......</div>
       )}
     </div>
   );

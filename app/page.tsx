@@ -1,3 +1,4 @@
+import "./globals.css"; // Import your global CSS
 import Navbar from "./components/Navbar";
 
 export default function Home() {
@@ -5,7 +6,7 @@ export default function Home() {
     <div>
       <Navbar />
       {/* Hero Section */}
-      <div className="hero min-h-screen">
+      <div className="hero min-h-screen"> 
         <div className="hero-content text-center">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-6xl font-semibold text-white leading-tight">
@@ -15,7 +16,7 @@ export default function Home() {
               Discover the best mentors and mentees. Take the first step to
               reach the future you want.
             </p>
-            <a className="btn btn-outline btn-black text-white text-xl px-8 py-3 hover:bg-white hover:text-black">
+            <a href='/dashboard' className="btn btn-outline btn-black text-white text-xl px-8 py-3 hover:bg-white hover:text-black">
               Get Started
             </a>
           </div>

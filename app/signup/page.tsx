@@ -94,7 +94,7 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-10 rounded-lg shadow-lg w-96">
         <h1 className="text-gray-800 text-3xl font-bold mb-5 text-center">Create Account</h1>
         {errorMsg && <p className="text-red-600 text-center mb-4">{errorMsg}</p>}
