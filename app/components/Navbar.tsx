@@ -1,7 +1,7 @@
-'use client';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -9,27 +9,30 @@ const Navbar = () => {
 
   // Check if user is authenticated on component mount
   useEffect(() => {
-    const user = sessionStorage.getItem('user');
+    const user = sessionStorage.getItem("user");
     setIsAuthenticated(!!user); // Set to true if user exists, otherwise false
   }, []);
 
   const handleLogout = () => {
-    sessionStorage.removeItem('user');
+    sessionStorage.removeItem("user");
     setIsAuthenticated(false);
-    router.push('/login');
+    router.push("/login");
   };
 
   return (
-    <nav className="navbar bg-gray-900 px-6 py-4 shadow-lg">
+    <nav className="navbar bg-[rgba(10,25,47,0.9)] px-6 py-4 shadow-lg">
       <div className="container mx-auto flex justify-between items-center">
         {/* Brand/logo */}
-        <Link href="/" className="text-white text-2xl font-bold tracking-wide hover:opacity-80 transition-opacity">
+        <Link
+          href="/"
+          className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-500"
+        >
           SkillSync
         </Link>
 
         <div className="flex items-center space-x-6">
           {isAuthenticated ? (
-            <ul className="flex space-x-6">
+            <ul className="flex space-x-8">
               <li>
                 <Link href="/profile">
                   <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
