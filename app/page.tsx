@@ -17,7 +17,7 @@ export default function Home() {
               reach the future you want.
             </p>
             <a
-              href="/dashboard"
+              href="/signup"
               className="btn btn-outline text-xl text-white font-semibold px-8 py-3 mt-4 hover:bg-white hover:text-black transition duration-300 ease-in-out"
             >
               Get Started
