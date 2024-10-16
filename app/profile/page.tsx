@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/config'; // Adjust the import path for your auth configuration
 import dayjs from 'dayjs'; // For formatting dates
+import UploadPDF from "../components/UploadPDF";
 
 // Define an interface for user data
 interface User {
@@ -78,6 +79,13 @@ const UserProfile = () => {
             <h3 className="text-lg font-semibold text-white mb-2">Sub Domain</h3>
             <p className="text-gray-300 text-base">{userData.subDomain}</p>
           </div>
+          {/* PDF Upload Section */}
+          <section className="p-0">
+            <h2 className="text-3xl font-bold text-center mb-6">Upload Your Resume Here</h2>
+            <div className="flex justify-center">
+              <UploadPDF />
+            </div>
+          </section>
         </div>
       ) : (
         <div className="text-center text-gray-300 text-xl">loading.......</div>

@@ -53,8 +53,7 @@ const UploadPDF = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-2 bg-gray-800 min-h-[10vh] min-w-sm mx-auto">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Upload a PDF File</h2>
+    <div className="flex flex-col items-center justify-center p-2 min-h-[10vh] min-w-sm mx-auto">
       <input 
         type="file" 
         accept="application/pdf" 
