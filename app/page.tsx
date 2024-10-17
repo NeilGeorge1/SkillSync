@@ -1,12 +1,11 @@
-import "./globals.css"; // Import your global CSS
 import Navbar from "./components/Navbar";
 
 export default function Home() {
   return (
     <div>
-      <Navbar />
+      <Navbar /> 
       {/* Hero Section */}
-      <div className="hero max-h-screen" style={{ height: "45vh" }}>
+      <div className="hero max-h-screen" style={{ height: "45vh", marginTop: 0 }}>
         <div className="hero-content text-center">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-6xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-pink-400 to-red-400">
