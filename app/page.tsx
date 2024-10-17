@@ -9,7 +9,7 @@ export default function Home() {
       <div className="hero min-h-screen">
         <div className="hero-content text-center">
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-6xl font-extrabold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-pink-400 to-red-400">
+            <h1 className="text-6xl font-bold leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-pink-400 to-red-400">
               Grow your skills everyday
             </h1>
             <p className="py-6 text-xl text-gray-400">
