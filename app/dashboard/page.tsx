@@ -1,5 +1,6 @@
 'use client';
 import Navbar from '../components/Navbar';
+import UploadPDF from '../components/UploadPDF';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/app/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -12,6 +13,7 @@ const HomePage = () => {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
   const [firstName, setFirstName] = useState('');
+  const [userType, setUserType] = useState(''); // State to store user type (student/professor)
   const [isLoading, setIsLoading] = useState(true);
   const [techNews, setTechNews] = useState([]); // State to store tech news
   const [newsLoading, setNewsLoading] = useState(true); // State for news loading
@@ -28,9 +30,13 @@ const HomePage = () => {
         try {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
-            const fullName = docSnap.data().fullName;
+            const data = docSnap.data();
+            const fullName = data.fullName;
             const firstName = fullName.split(' ')[0];
             setFirstName(firstName);
+
+            // Set the userType from Firestore (e.g., 'student' or 'professor')
+            setUserType(data.userType);
           } else {
             console.log('No such document!');
           }
@@ -68,13 +74,25 @@ const HomePage = () => {
   return (
     <div className="min-h-screen text-white">
       <Navbar />
-  
+      
       {/* Hero Section */}
       <section className="text-center p-16">
         <h1 className="text-5xl font-bold">Welcome, {firstName}!</h1>
         <p className="text-lg mb-6">This is your dashboard for collaborative project development.</p>
+
+        {/* Conditional Add Project button for professors (now below the description) */}
+        {userType === 'professor' && (
+          <div className="mt-4">
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              onClick={() => router.push('/make-project')}
+            >
+              Add Project
+            </button>
+          </div>
+        )}
       </section>
-  
+
       {/* Tech News Section */}
       <section className="p-8">
         <h2 className="text-3xl font-bold mb-4">Latest Tech News</h2>
@@ -84,7 +102,7 @@ const HomePage = () => {
           <div className="flex overflow-x-auto space-x-4 scrollbar-thin scrollbar-thumb-gray-700">
             {techNews.length > 0 ? (
               techNews.map((news, index) => (
-                <div key={index} className="bg-gray-900 p-4 rounded-lg h-[22rem] w-[25rem]  flex-shrink-0">
+                <div key={index} className="bg-gray-900 p-4 rounded-lg h-[22rem] w-[25rem] flex-shrink-0">
                   <img
                     src={news.urlToImage || '/default-news-image.jpg'}
                     alt={news.title}
@@ -113,7 +131,6 @@ const HomePage = () => {
       </section>
     </div>
   );
-  
 };
 
 export default HomePage;

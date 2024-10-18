@@ -90,14 +90,6 @@ const UserProfile = () => {
               ))}
             </div>
           </div>
-          
-          {/* PDF Upload Section */}
-          <section className="p-0">
-            <h2 className="text-3xl font-bold text-center mb-6">Upload Your Resume Here</h2>
-            <div className="flex justify-center">
-              <UploadPDF />
-            </div>
-          </section>
         </div>
       ) : (
         <div className="text-center text-gray-300 text-xl">Loading user data...</div>
