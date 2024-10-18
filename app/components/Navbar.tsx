@@ -81,28 +81,13 @@ const Navbar = () => {
                   </span>
                 </Link>
               </li>
-              <li className="relative group">
-                <span className="text-white hover:bg-white hover:text-gray-900 transition-colors px-4 py-2 rounded-md cursor-pointer">
+              <li className="relative">
+              <Link href="/signup">
+                <span className="text-white bg-gray-800 hover:bg-white hover:text-gray-900 transition-colors px-4 py-2 rounded-md cursor-pointer">
                   Sign Up
                 </span>
-                {/* Dropdown menu */}
-                <ul className="absolute hidden group-hover:block bg-gray-800 rounded-md mt-2 space-y-2 py-2 shadow-lg">
-                  <li>
-                    <Link href="/signup/student">
-                      <span className="block px-4 py-2 text-white hover:bg-white hover:text-gray-900  rounded-md transition-colors">
-                        As a Student
-                      </span>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/signup/professor">
-                      <span className="block px-4 py-2 text-white hover:bg-white hover:text-gray-900 rounded-md transition-colors">
-                        As a Professor
-                      </span>
-                    </Link>
-                  </li>
-                </ul>
-              </li>
+              </Link>
+            </li>
             </ul>
           )}
         </div>

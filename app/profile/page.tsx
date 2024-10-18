@@ -1,6 +1,6 @@
 'use client';
 import Navbar from "../components/Navbar";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/config"; // Adjust the path as necessary
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -14,10 +14,10 @@ interface User {
   fullName: string;
   email: string;
   aboutMe: string;
-  mainDomain: string;
-  subDomain: string;
+  skills: string[]; // Array of skills
   createdAt: Date;
-  role?:string;
+  userType: 'student' | 'professor'; // User type
+  uid: string; // User ID
 }
 
 const UserProfile = () => {
@@ -34,8 +34,13 @@ const UserProfile = () => {
       if (userDoc.exists()) {
         const data = {
           id: userDoc.id,
-          ...userDoc.data(),
+          uid: userDoc.data().uid, // Get UID from Firestore
+          fullName: userDoc.data().fullName,
+          email: userDoc.data().email,
+          aboutMe: userDoc.data().aboutMe,
+          skills: userDoc.data().skills || [], // Ensure skills is an array
           createdAt: userDoc.data().createdAt.toDate(), // Convert Firestore timestamp to JS Date
+          userType: userDoc.data().userType, // Get user type
         } as User; // Type assertion
         setUserData(data); // Save the fetched data
       } else {
@@ -51,8 +56,8 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-6">
-      <Navbar/>
+    <div className="min-h-screen flex flex-col items-center">
+      <Navbar />
       {userData ? (
         <div className="bg-gray-900 shadow-md rounded-lg p-6 w-full max-w-2xl mt-8">
           <div className="flex items-center space-x-6 mb-4">
@@ -65,8 +70,10 @@ const UserProfile = () => {
               <h2 className="text-3xl font-semibold text-white">{userData.fullName}</h2>
               <p className="text-gray-400">{userData.email}</p>
               <p className="text-sm text-gray-500">
-                Joined on {dayjs(userData.createdAt).format('MMMM D, YYYY')}
+                Joined on {dayjs(userData.createdAt).format('MMMM D, YYYY [at] h:mm:ss A')}
               </p>
+              <p className="text-sm text-gray-500">Role: {userData.userType}</p>
+              <p className="text-sm text-gray-500">User ID: {userData.uid}</p>
             </div>
           </div>
 
@@ -74,12 +81,16 @@ const UserProfile = () => {
             <h3 className="text-lg font-semibold text-white mb-2">About Me</h3>
             <p className="text-gray-300 text-base mb-4">{userData.aboutMe}</p>
 
-            <h3 className="text-lg font-semibold text-white mb-2">Main Domain</h3>
-            <p className="text-gray-300 text-base mb-4">{userData.mainDomain}</p>
-
-            <h3 className="text-lg font-semibold text-white mb-2">Sub Domain</h3>
-            <p className="text-gray-300 text-base">{userData.subDomain}</p>
+            <h3 className="text-lg font-semibold text-white mb-2">Skills</h3>
+            <div className="flex flex-wrap mb-4">
+              {userData.skills.map(skill => (
+                <span key={skill} className="bg-blue-600 text-white rounded-full px-3 py-1 text-sm mr-2 mb-2">
+                  {skill}
+                </span>
+              ))}
+            </div>
           </div>
+          
           {/* PDF Upload Section */}
           <section className="p-0">
             <h2 className="text-3xl font-bold text-center mb-6">Upload Your Resume Here</h2>
@@ -89,7 +100,7 @@ const UserProfile = () => {
           </section>
         </div>
       ) : (
-        <div className="text-center text-gray-300 text-xl">loading.......</div>
+        <div className="text-center text-gray-300 text-xl">Loading user data...</div>
       )}
     </div>
   );
