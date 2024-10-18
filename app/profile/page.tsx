@@ -17,6 +17,7 @@ interface User {
   mainDomain: string;
   subDomain: string;
   createdAt: Date;
+  role?:string;
 }
 
 const UserProfile = () => {

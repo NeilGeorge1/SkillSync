@@ -84,7 +84,7 @@ const HomePage = () => {
           <div className="flex overflow-x-auto space-x-4 scrollbar-thin scrollbar-thumb-gray-700">
             {techNews.length > 0 ? (
               techNews.map((news, index) => (
-                <div key={index} className="bg-gray-900 p-4 rounded-lg h- w-80   flex-shrink-0">
+                <div key={index} className="bg-gray-900 p-4 rounded-lg h-[22rem] w-[25rem]  flex-shrink-0">
                   <img
                     src={news.urlToImage || '/default-news-image.jpg'}
                     alt={news.title}
@@ -92,7 +92,7 @@ const HomePage = () => {
                   />
                   <div>
                     <h3 className="text-lg font-semibold mb-1">
-                      {news.title.length > 50 ? `${news.title.slice(0, 30)}...` : news.title}
+                      {news.title.length > 100 ? `${news.title.slice(0, 30)}...` : news.title}
                     </h3>
                     <p className="text-gray-400 mb-2 text-sm"> {/* Decreased text size */}
                       {news.description && news.description.length > 60
