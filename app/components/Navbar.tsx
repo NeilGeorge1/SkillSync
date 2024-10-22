@@ -35,6 +35,13 @@ const Navbar = () => {
           {isAuthenticated ? (
             <ul className="flex space-x-8">
               <li>
+                <Link href="/dashboard">
+                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
+                    Dashboard
+                  </span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/profile">
                   <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
                     Profile
@@ -45,13 +52,6 @@ const Navbar = () => {
                 <Link href="/projects">
                   <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
                     Projects
-                  </span>
-                </Link>
-              </li>
-              <li>
-                <Link href="/dashboard">
-                  <span className="text-white hover:text-gray-400 transition-colors px-4 py-2 rounded-md">
-                    Dashboard
                   </span>
                 </Link>
               </li>
