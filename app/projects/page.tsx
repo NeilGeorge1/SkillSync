@@ -1,18 +1,37 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, storage, db } from "../firebase/config";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import Navbar from "../components/Navbar";
+import { 
+  collection, 
+  getDocs, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  query, 
+  where, 
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  deleteDoc
+} from "firebase/firestore";
 
 const UserProjects = () => {
   const [user, loading] = useAuthState(auth);
   const [userType, setUserType] = useState(null);
   const [resumeExists, setResumeExists] = useState(false);
   const [projects, setProjects] = useState([]);
-  const [uploadStatus, setUploadStatus] = useState('');
+  const [uploadStatus, setUploadStatus] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [pendingRequests, setPendingRequests] = useState(new Set());
+  const [isLoadingRequests, setIsLoadingRequests] = useState(true);
+  const [professorNames, setProfessorNames] = useState({});
+  const [incomingRequests, setIncomingRequests] = useState([]);
+  const [assignedStudents, setAssignedStudents] = useState({});
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -21,172 +40,430 @@ const UserProjects = () => {
   }, [user]);
 
   useEffect(() => {
-    if (user && userType) {
-      if (userType === 'student') {
-        checkResumeExists();
-      } else {
-        fetchProjects();
-      }
+    if (user && userType === "student") {
+      fetchPendingRequests();
+      checkResumeExists();
+    } else if (user && userType === "professor") {
+      fetchProjects();
+      fetchIncomingRequests();
     }
   }, [user, userType]);
+
+  useEffect(() => {
+    // Fetch professor names for all projects
+    if (projects.length > 0 && userType === "student") {
+      projects.forEach(project => {
+        if (!professorNames[project.uid]) {
+          fetchProfessorName(project.uid);
+        }
+      });
+    }
+  }, [projects]);
 
   const fetchUserType = async () => {
     if (!user) return;
     try {
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
+      const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         setUserType(userDoc.data().userType);
       } else {
-        console.error("No such user found!");
+        setError("User profile not found");
       }
     } catch (error) {
       console.error("Error fetching user type:", error);
+      setError("Failed to fetch user type");
+    }
+  };
+
+  const fetchProfessorName = async (professorId) => {
+    try {
+      const professorDoc = await getDoc(doc(db, "users", professorId));
+      if (professorDoc.exists()) {
+        const data = professorDoc.data();
+        const professorName = data.displayName || data.email?.split('@')[0] || "Unknown Professor";
+        setProfessorNames(prev => ({
+          ...prev,
+          [professorId]: professorName
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching professor name:", error);
+      setProfessorNames(prev => ({
+        ...prev,
+        [professorId]: "Unknown Professor"
+      }));
+    }
+  };
+
+  const fetchPendingRequests = async () => {
+    if (!user) return;
+    setIsLoadingRequests(true);
+    try {
+      const requestsQuery = query(
+        collection(db, "joinRequests"),
+        where("studentId", "==", user.uid)
+      );
+      const snapshot = await getDocs(requestsQuery);
+      
+      const pendingProjectIds = new Set(
+        snapshot.docs
+          .filter(doc => doc.data().status === "pending")
+          .map(doc => doc.data().projectId)
+      );
+      
+      setPendingRequests(pendingProjectIds);
+    } catch (error) {
+      console.error("Error fetching pending requests:", error);
+      setError("Failed to fetch pending requests");
+    } finally {
+      setIsLoadingRequests(false);
     }
   };
 
   const checkResumeExists = async () => {
     if (!user) return;
-    const fileRef = ref(storage, `resumes/${user.uid}/resume.pdf`);
     try {
-      await getDownloadURL(fileRef);
+      await getDownloadURL(ref(storage, `resumes/${user.uid}/resume.pdf`));
       setResumeExists(true);
       fetchProjects();
     } catch (error) {
-      if (error.code === 'storage/object-not-found') {
+      if (error.code === "storage/object-not-found") {
         setResumeExists(false);
+      } else {
+        console.error("Error checking resume:", error);
+        setError("Failed to check resume status");
       }
-      console.error("Error checking resume:", error);
     }
   };
 
   const fetchProjects = async () => {
     if (!user) return;
     try {
-      const projectsCollectionRef = collection(db, 'projects');
-      const querySnapshot = await getDocs(projectsCollectionRef);
-      const data = querySnapshot.docs.map((doc) => ({
+      const snapshot = await getDocs(collection(db, "projects"));
+      const data = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      // Filter projects based on user type
-      const filteredProjects = userType === 'professor' 
-        ? data.filter(project => project.uid === user.uid)  // Show only projects created by this professor
-        : data;  // Show all projects for students
+      const filteredProjects = userType === "professor"
+        ? data.filter((project) => project.uid === user.uid)
+        : data;
 
       setProjects(filteredProjects);
+
+      if (userType === "professor") {
+        const studentAssignments = {};
+        filteredProjects.forEach((project) => {
+          if (project.assignedStudents) {
+            studentAssignments[project.id] = project.assignedStudents;
+          }
+        });
+        setAssignedStudents(studentAssignments);
+      }
     } catch (error) {
       console.error("Error fetching projects:", error);
+      setError("Failed to fetch projects");
+    }
+  };
+
+  const fetchIncomingRequests = async () => {
+    if (!user) return;
+    try {
+      const requestsQuery = query(
+        collection(db, "joinRequests"),
+        where("professorId", "==", user.uid),
+        where("status", "==", "pending")
+      );
+      const snapshot = await getDocs(requestsQuery);
+      const requestsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setIncomingRequests(requestsData);
+    } catch (error) {
+      console.error("Error fetching incoming requests:", error);
+      setError("Failed to fetch incoming requests");
     }
   };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
+    if (file?.type === "application/pdf") {
       setSelectedFile(file);
-      setUploadStatus('');
+      setUploadStatus("");
     } else {
       setSelectedFile(null);
-      setUploadStatus('Please select a PDF file.');
+      setUploadStatus("Please select a PDF file.");
     }
   };
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setUploadStatus('Please select a file first.');
+      setUploadStatus("Please select a file first.");
       return;
     }
 
-    setUploadStatus('Uploading...');
+    setUploadStatus("Uploading...");
     const fileRef = ref(storage, `resumes/${user.uid}/resume.pdf`);
-    
+
     try {
       await uploadBytes(fileRef, selectedFile);
-      setUploadStatus('Upload successful!');
+      setUploadStatus("Upload successful!");
       setResumeExists(true);
       fetchProjects();
     } catch (error) {
-      setUploadStatus('Upload failed. Please try again.');
-      console.error('Upload error:', error);
+      console.error("Upload error:", error);
+      setUploadStatus("Upload failed. Please try again.");
+      setError("Failed to upload resume");
     }
   };
 
-  const renderStudentContent = () => (
-    !resumeExists ? (
-      <div>
-        <p className="text-white mb-4">Upload resume first to see recommended projects.</p>
-        <input type="file" onChange={handleFileChange} accept=".pdf" className="mb-2" />
-        <button 
-          onClick={handleUpload} 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+  const handleJoinRequest = async (projectId, professorId) => {
+    if (!user || pendingRequests.has(projectId)) return;
+    
+    try {
+      const requestRef = doc(db, "joinRequests", `${projectId}_${user.uid}`);
+      
+      const existingRequest = await getDoc(requestRef);
+      if (existingRequest.exists()) {
+        const status = existingRequest.data().status;
+        if (status === "pending") {
+          setPendingRequests(prev => new Set([...prev, projectId]));
+          return;
+        }
+      }
+      
+      await setDoc(requestRef, {
+        projectId,
+        studentId: user.uid,
+        professorId,
+        status: "pending",
+        studentName: user.displayName || user.email?.split("@")[0] || "Anonymous Student",
+        timestamp: new Date().toISOString(),
+      });
+      
+      setPendingRequests(prev => new Set([...prev, projectId]));
+    } catch (error) {
+      console.error("Error sending join request:", error);
+      setError("Failed to send join request");
+    }
+  };
+
+  const handleAcceptRequest = async (requestId, projectId, studentName) => {
+    try {
+      const requestRef = doc(db, "joinRequests", requestId);
+      await updateDoc(requestRef, { status: "accepted" });
+
+      const projectRef = doc(db, "projects", projectId);
+      await updateDoc(projectRef, {
+        assignedStudents: arrayUnion(studentName)
+      });
+
+      setAssignedStudents((prev) => ({
+        ...prev,
+        [projectId]: [...(prev[projectId] || []), studentName],
+      }));
+
+      // Remove from incoming requests
+      setIncomingRequests(prev => 
+        prev.filter(request => request.id !== requestId)
+      );
+
+      // Refresh the projects list
+      fetchProjects();
+    } catch (error) {
+      console.error("Error accepting request:", error);
+      setError("Failed to accept request");
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    try {
+      const requestRef = doc(db, "joinRequests", requestId);
+      await updateDoc(requestRef, { status: "rejected" });
+
+      // Remove from incoming requests
+      setIncomingRequests(prev => 
+        prev.filter(request => request.id !== requestId)
+      );
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      setError("Failed to reject request");
+    }
+  };
+
+  const handleRemoveStudent = async (projectId, studentName) => {
+    try {
+      const projectRef = doc(db, "projects", projectId);
+      await updateDoc(projectRef, {
+        assignedStudents: arrayRemove(studentName)
+      });
+
+      setAssignedStudents((prev) => ({
+        ...prev,
+        [projectId]: prev[projectId].filter(name => name !== studentName)
+      }));
+
+      // Refresh the projects list
+      fetchProjects();
+    } catch (error) {
+      console.error("Error removing student:", error);
+      setError("Failed to remove student");
+    }
+  };
+
+  const ResumeUploadSection = () => (
+    <div className="bg-gray-800 rounded-xl p-6 mb-6">
+      <p className="text-white mb-4">
+        {resumeExists
+          ? "You have already uploaded a resume. Upload a new one to update."
+          : "Upload resume first to see recommended projects."}
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <input
+          type="file"
+          onChange={handleFileChange}
+          accept=".pdf"
+          className="text-white"
+        />
+        <button
+          onClick={handleUpload}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded transition-colors duration-200"
         >
-          Upload PDF
+          {resumeExists ? "Update Resume" : "Upload Resume"}
         </button>
-        {uploadStatus && <p className="mt-2 text-white">{uploadStatus}</p>}
       </div>
-    ) : (
-      <div>
-        <p className="text-white mb-4">You have already uploaded a resume. Upload a new one if you want to update.</p>
-        <input type="file" onChange={handleFileChange} accept=".pdf" className="mb-2" />
-        <button 
-          onClick={handleUpload} 
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Upload Latest PDF
-        </button>
-        {uploadStatus && <p className="mt-2 text-white">{uploadStatus}</p>}
-        {renderProjects()}
-      </div>
-    )
+      {uploadStatus && (
+        <p className="mt-4 text-white text-sm">{uploadStatus}</p>
+      )}
+    </div>
   );
 
-  const renderProjects = () => (
-    projects.length > 0 ? (
-      projects.map((project) => (
-        <div
-          key={project.id}
-          className="bg-gray-800 rounded-xl p-6 shadow-md mb-4 transition-transform transform hover:scale-105 hover:bg-gray-700"
-        >
-          <h3 className="text-xl font-semibold text-white">{project.title}</h3>
-          <p className="text-gray-400">Description: {project.description}</p>
-          {userType === 'student' ? (
-            <>
-              <p className="text-gray-400">
-                {`Skills Required: ${project.skillsRequired?.join(', ')}`}
-              </p>
-              <p className="text-gray-400">
-                References: <a href={project.references} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{project.references}</a>
-              </p>
-              <p className="text-gray-400">
-                Proposal: <a href={project.fileURL} download className="text-blue-500 hover:underline">{project.fileURL}</a>
-              </p>
-            </>
-          ) : (
-            <p className="text-gray-400">
-              {`Assigned Students: ${project.assignedStudents?.join(', ') || 'No students assigned'}`}
+  const ProjectCard = ({ project }) => {
+    const isPending = pendingRequests.has(project.id);
+    const professorName = professorNames[project.uid] || "Loading...";
+
+    return (
+      <div className="bg-gray-800 rounded-xl p-6 shadow-lg mb-4 transition-all duration-300 hover:scale-102 hover:bg-gray-700">
+        <h3 className="text-xl font-semibold text-white mb-3">{project.title}</h3>
+        <p  className="text-gray-300 mb-4">Project ID: {project.id}</p>
+        {userType !== "professor" && (
+          <>
+            <p className="text-gray-300 mb-2">
+              <span className="font-medium">Proposed by:</span>{" "}
+              <span className="text-blue-400">{professorName}</span>
             </p>
-          )}
-        </div>
-      ))
-    ) : (
-      <div className="text-gray-400">No projects found.</div>
-    )
-  );
+            <p className="text-gray-300 mb-4">
+              Proposal: <a href={project.fileURL} className="text-blue-500 hover:underline">Click here to view</a>
+            </p>
+            <p className="text-gray-300 mb-4">Description : {project.description}</p>
 
-  if (loading) return <div className="text-white">Loading...</div>;
-  if (!user) return <div className="text-white">Please log in to see projects.</div>;
+            <button
+              onClick={() => handleJoinRequest(project.id, project.uid)}
+              disabled={isPending}
+              className={`py-2 px-6 rounded transition-colors duration-200 ${
+                isPending
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {isPending ? "Request Pending" : "Join Project"}
+            </button>
+          </>
+        )}
+
+        {userType === "professor" && (
+          <div>
+            <h4 className="text-white font-medium mt-4 mb-2">Assigned Students:</h4>
+            {assignedStudents[project.id]?.length > 0 ? (
+              <ul className="space-y-2">
+                {assignedStudents[project.id].map((studentName) => (
+                  <li key={studentName} className="flex items-center justify-between text-gray-300">
+                    <span>{studentName}</span>
+                    <button
+                      onClick={() => handleRemoveStudent(project.id, studentName)}
+                      className="text-red-400 hover:text-red-300 text-sm ml-4"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-400">No students assigned yet</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const IncomingRequestCard = ({ request }) => (
+    <div className="bg-gray-800 rounded-xl p-6 shadow-lg mb-4 transition-all duration-300">
+      <p className="text-white">
+        <span className="font-semibold">{request.studentName}</span> has requested to join{" "}
+        <span className="text-blue-400 font-semibold">{request.projectId}</span>
+      </p>
+      <p className="text-gray-400 text-sm mt-2">
+        Requested on: {new Date(request.timestamp).toLocaleDateString()}
+      </p>
+      <div className="mt-4 flex gap-4">
+        <button
+          onClick={() => handleAcceptRequest(request.id, request.projectId, request.studentName)}
+          className="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded"
+        >
+          Accept
+        </button>
+        <button
+          onClick={() => handleRejectRequest(request.id)}
+          className="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded"
+        >
+          Reject
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col space-y-6 p-4">
+    <div>
       <Navbar />
-      <h2 className="text-2xl font-bold text-white mb-4">
-        {userType === "student" ? "Recommended Projects" : "Your Projects"}
-      </h2>
-      
-      {userType === "student" ? renderStudentContent() : renderProjects()}
+      <div className="flex flex-col items-center justify-center">
+        {loading && <p className="text-white">Loading...</p>}
+        {!loading && userType === "student" && (
+          <div className="max-w-3xl mx-auto">
+            <ResumeUploadSection />
+            {resumeExists && (
+              <div className="mt-4">
+                <h2 className="text-white text-2xl font-semibold mb-4">Projects You Can Join</h2>
+                {projects.map((project) => (
+                  <ProjectCard key={project.id} project={project} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {!loading && userType === "professor" && (
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-white text-2xl font-semibold mb-4">Your Projects</h2>
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+            <div className="mt-8">
+              <h2 className="text-white text-2xl font-semibold mb-4">Incoming Join Requests</h2>
+              {incomingRequests.length === 0 ? (
+                <p className="text-white">No pending requests at the moment.</p>
+              ) : (
+                incomingRequests.map((request) => (
+                  <IncomingRequestCard key={request.id} request={request} />
+                ))
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 export default UserProjects;
+
