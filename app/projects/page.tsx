@@ -232,6 +232,9 @@ const UserProjects = () => {
           return;
         }
       }
+
+      const fileRef = ref(storage, `resumes/${user.uid}/resume.pdf`);
+      const resumeURL = await getDownloadURL(fileRef)
       
       await setDoc(requestRef, {
         projectId,
@@ -240,6 +243,7 @@ const UserProjects = () => {
         status: "pending",
         studentName: user.displayName || user.email?.split("@")[0] || "Anonymous Student",
         timestamp: new Date().toISOString(),
+        resumeURL
       });
       
       setPendingRequests(prev => new Set([...prev, projectId]));
@@ -404,6 +408,9 @@ const UserProjects = () => {
         <span className="font-semibold">{request.studentName}</span> has requested to join{" "}
         <span className="text-blue-400 font-semibold">{request.projectId}</span>
       </p>
+      <a href={request.resumeURL} className="text-blue-400 text-sm mt-2">
+        Click here to view student's resume
+      </a>
       <p className="text-gray-400 text-sm mt-2">
         Requested on: {new Date(request.timestamp).toLocaleDateString()}
       </p>
