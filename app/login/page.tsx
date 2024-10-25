@@ -16,7 +16,6 @@ const SignIn = () => {
     try {
       const res = await signInWithEmailAndPassword(email, password);
       if (res?.user) {
-        // Only set session and redirect if authentication is successful
         sessionStorage.setItem("user", JSON.stringify(res.user));
         setEmail("");
         setPassword("");
@@ -31,8 +30,8 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="bg-white p-10 rounded-lg shadow-lg w-96">
-        <h1 className="text-gray-800 text-3xl font-bold mb-5 text-center">
+      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+        <h1 className="text-gray-800 text-4xl font-bold mb-6 text-center">
           Sign In
         </h1>
         <input
@@ -40,30 +39,32 @@ const SignIn = () => {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-4 mb-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+          className="w-full p-4 mb-4 border border-gray-300 rounded-lg outline-none focus:ring-4 focus:ring-blue-500 focus:border-transparent transition duration-200"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-4 mb-4 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+          className="w-full p-4 mb-6 border border-gray-300 rounded-lg outline-none focus:ring-4 focus:ring-blue-500 focus:border-transparent transition duration-200"
         />
         <button
           onClick={handleSignIn}
-          className="w-full p-4 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition duration-200"
+          className={`w-full p-4 bg-black text-white font-semibold rounded-lg hover:bg-gray-900 transition duration-200 ${
+            loading ? "opacity-75 cursor-not-allowed" : ""
+          }`}
           disabled={loading}
         >
           {loading ? "Signing In..." : "Sign In"}
         </button>
 
         {error && (
-          <p className="mt-2 text-center text-red-600">{error.message}</p>
+          <p className="mt-4 text-center text-red-600 text-sm">{error.message}</p>
         )}
 
-        <p className="mt-4 text-center text-gray-600 text-sm">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-blue-600 hover:underline">
+        <p className="mt-6 text-center text-gray-600 text-sm">
+          Don&apos;t have an account?{" "}
+          <a href="/signup" className="text-blue-600 font-semibold hover:underline">
             Sign Up
           </a>
         </p>
