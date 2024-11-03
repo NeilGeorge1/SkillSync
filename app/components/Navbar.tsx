@@ -12,13 +12,16 @@ import {
   LogIn, 
   UserPlus,
   Menu,
-  X
+  X,
+  Search
 } from "lucide-react"
+import SearchBar from "./SearchBar"
 
-const Navbar = () => {
+export default function Navbar() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [query, setQuery] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -67,16 +70,16 @@ const Navbar = () => {
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap justify-between items-center">
           <Link
             href="/"
             className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-500 hover:opacity-80 transition-opacity"
           >
             SkillSync
           </Link>
-
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
+          <SearchBar/>
+          <div className="hidden md:flex items-center space-x-1 md:order-3">
             {isAuthenticated ? (
               <>
                 <NavLink href="/dashboard" icon={LayoutDashboard}>Dashboard</NavLink>
@@ -105,7 +108,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden order-2">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-300 hover:text-white transition-colors"
@@ -149,5 +152,3 @@ const Navbar = () => {
     </nav>
   )
 }
-
-export default Navbar
