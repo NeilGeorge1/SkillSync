@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -36,7 +35,7 @@ const UserProfile = () => {
           email: userDoc.data().email,
           aboutMe: userDoc.data().aboutMe,
           skills: userDoc.data().skills || [],
-          createdAt: userDoc.data().createdAt.toDate(),
+          //createdAt: userDoc.data().createdAt.toDate(),
           userType: userDoc.data().userType,
         } as User;
         setUserData(data);
