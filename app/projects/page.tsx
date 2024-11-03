@@ -5,6 +5,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 import { useAuthState } from "react-firebase-hooks/auth"
 import { auth, storage, db } from "../firebase/config"
 import Navbar from "../components/Navbar"
+import Footer from "../components/Footer"
 import { cosineSimilarity, filterProjects, createSkillVector} from "../recommender/contentFiltering"
 import { collection, getDocs, doc, getDoc, setDoc, query, where, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"
 
@@ -302,7 +303,7 @@ export default function UserProjects() {
   }
 
   const ResumeUploadSection = () => (
-    <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-gray-900 rounded-lg shadow-md p-6 mb-6">
       <h2 className="text-2xl font-semibold mb-4">Resume Upload</h2>
       <p className="mb-4 text-gray-600">
         {resumeExists
@@ -335,7 +336,7 @@ export default function UserProjects() {
     const professorName = professorNames[project.uid] || "Loading..."
 
     return (
-      <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+      <div className="bg-gray-900 rounded-lg shadow-md p-6 mb-6">
         <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
         <p className="text-sm text-gray-300 mb-4">Project ID: {project.id}</p>
         {userType !== "professor" && (
@@ -390,7 +391,7 @@ export default function UserProjects() {
   }
 
   const IncomingRequestCard = ({ request }) => (
-    <div className="bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+    <div className="bg-gray-900 rounded-lg shadow-md p-6 mb-6">
       <p className="mb-2">
         <span className="font-semibold">{request.studentName}</span> has requested to join{" "}
         <span className="text-blue-600 font-semibold">{request.projectId}</span>
@@ -428,9 +429,9 @@ export default function UserProjects() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
+      <main className="flex-grow container mx-auto px-4 py-8">
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
             <strong className="font-bold">Error:</strong>
@@ -468,7 +469,8 @@ export default function UserProjects() {
             </div>
           </div>
         )}
-      </div>
+      </main>
+      <Footer />
     </div>
   )
 }

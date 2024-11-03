@@ -7,6 +7,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/app/firebase/config'
 import { getTechHeadlines } from '@/api'
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import { BarChart3, BookOpen, Calendar, ChevronRight, Clock, Users } from 'lucide-react'
 
 const HomePage = () => {
@@ -244,6 +245,7 @@ const HomePage = () => {
           )}
         </section>
       </div>
+      <Footer/>
     </div>
   )
 }

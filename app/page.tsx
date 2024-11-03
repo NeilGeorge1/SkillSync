@@ -3,6 +3,7 @@
 import { useEffect } from "react"
 import { ChevronRight, Users, Star, Book, CheckCircle } from "lucide-react"
 import Navbar from "./components/Navbar"
+import Footer from "./components/Footer"
 
 export default function Home() {
   useEffect(() => {
@@ -177,6 +178,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <Footer/>
     </div>
   )
 }

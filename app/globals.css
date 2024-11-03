@@ -14,7 +14,7 @@
 
 body {
   color: rgb(245, 238, 238);
-
+  padding-top: 4rem;
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url("/Background.jpg");
   background-size: cover;
