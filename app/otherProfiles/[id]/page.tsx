@@ -15,6 +15,7 @@ interface User {
   skills: string[];
   createdAt: Date;
   userType: 'student' | 'professor';
+  avatarUrl?: string;
 }
 
 export default function OtherProfile({ params }: { params: { id: string } }) {
@@ -36,6 +37,7 @@ export default function OtherProfile({ params }: { params: { id: string } }) {
             skills: userDoc.data().skills || [],
             createdAt: userDoc.data().createdAt?.toDate() || new Date(),
             userType: userDoc.data().userType,
+            avatarUrl: userDoc.data().avatarUrl,
           } as User;
           setUserData(data);
         }
@@ -90,7 +92,7 @@ export default function OtherProfile({ params }: { params: { id: string } }) {
                   <div className="relative">
                     <img
                       className="w-36 h-36 rounded-full shadow-2xl ring-4 ring-blue-500 transition-transform duration-300 hover:scale-105"
-                      src={`https://ui-avatars.com/api/?name=${userData.fullName}&background=random&size=144`}
+                      src={userData.avatarUrl || `https://ui-avatars.com/api/?name=${userData.fullName}&background=random&size=144`}
                       alt={`${userData.fullName}'s avatar`}
                     />
                     <span className="absolute -bottom-2 right-0 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">

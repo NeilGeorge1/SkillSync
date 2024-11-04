@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth, db } from '@/app/firebase/config';
 import { doc, setDoc } from 'firebase/firestore';
+import { User, Mail, Lock, UserPlus, Users, ChevronDown, X, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 const AVAILABLE_SKILLS = [
   'C', 'C++', 'Python', 'Java', 'JavaScript', 'React', 'Angular', 'Vue',
@@ -13,7 +15,7 @@ const AVAILABLE_SKILLS = [
   'Docker', 'Kubernetes', 'GraphQL', 'ARM', 'Keil'
 ].sort();
 
-const SignUp = () => {
+export default function SignUp() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -54,9 +56,22 @@ const SignUp = () => {
     }));
   };
 
+  const validateEmail = (email: string) => {
+    return email.includes('@');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus({ ...status, isSubmitting: true, error: '' });
+
+    if (!validateEmail(formData.email)) {
+      setStatus({
+        error: 'Invalid email. Please include an @ symbol.',
+        success: '',
+        isSubmitting: false
+      });
+      return;
+    }
 
     try {
       const res = await createUserWithEmailAndPassword(formData.email, formData.password);
@@ -84,36 +99,32 @@ const SignUp = () => {
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-16">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-12 max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row items-start justify-between gap-16 max-w-7xl mx-auto">
           {/* Left side - Welcome content */}
-          <div className="lg:w-1/2 text-center lg:text-left">
-            <h1 className="text-4xl lg:text-5xl font-bold text-gray-300 mb-6">
+          <div className="lg:w-1/2 lg:sticky lg:top-16">
+            <h1 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-300 to-purple-900 bg-clip-text text-transparent">
               Join our community of innovators
             </h1>
-            <p className="text-lg text-gray-400 mb-8">
+            <p className="text-lg text-gray-300 mb-8">
               Connect with fellow developers, share your expertise, and discover new opportunities.
             </p>
-            <div className="hidden lg:block">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                  </svg>
+            <div className="space-y-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                  <UserPlus className="w-6 h-6 text-blue-400" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-400">Create your profile</h3>
+                <div>
+                  <h3 className="font-semibold text-gray-200">Create your profile</h3>
                   <p className="text-gray-400">Showcase your skills and experience</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                  </svg>
+                <div className="w-12 h-12 bg-purple-500 bg-opacity-20 rounded-full flex items-center justify-center">
+                  <Users className="w-6 h-6 text-purple-400" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-400">Join the network</h3>
-                  <p className="text-gray-300">Connect with peers and mentors</p>
+                <div>
+                  <h3 className="font-semibold text-gray-200">Join the network</h3>
+                  <p className="text-gray-400">Connect with peers and mentors</p>
                 </div>
               </div>
             </div>
@@ -121,8 +132,8 @@ const SignUp = () => {
 
           {/* Right side - Sign up form */}
           <div className="w-full lg:w-1/2">
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Create your account</h2>
+            <div className="bg-white text-gray-900 rounded-2xl shadow-2xl p-8">
+              <h2 className="text-3xl font-bold mb-6">Create your account</h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 {status.error && (
@@ -138,72 +149,80 @@ const SignUp = () => {
                 )}
 
                 <div className="space-y-4">
-                  <div>
+                  <div className="relative">
+                    <User className="absolute top-3 left-3 text-gray-400" size={20} />
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="Full name"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="relative">
+                    <Mail className="absolute top-3 left-3 text-gray-400" size={20} />
                     <input
-                      type="email"
+                      type="text"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="Email address"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="relative">
+                    <Lock className="absolute top-3 left-3 text-gray-400" size={20} />
                     <input
                       type="password"
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
                       placeholder="Password"
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="relative">
+                    <Users className="absolute top-3 left-3 text-gray-400" size={20} />
                     <select
                       name="userType"
                       value={formData.userType}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"
+                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none appearance-none"
                     >
                       <option value="student">I am a Student</option>
                       <option value="professor">I am a Professor</option>
                     </select>
+                    <ChevronDown className="absolute top-3 right-3 text-gray-400 pointer-events-none" size={20} />
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex gap-2">
-                      <select
-                        value={formData.selectedSkill}
-                        onChange={(e) => setFormData(prev => ({ ...prev, selectedSkill: e.target.value }))}
-                        className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none"
-                      >
-                        <option value="">Select skills...</option>
-                        {AVAILABLE_SKILLS.map(skill => (
-                          <option key={skill} value={skill}>{skill}</option>
-                        ))}
-                      </select>
+                      <div className="relative flex-1">
+                        <select
+                          value={formData.selectedSkill}
+                          onChange={(e) => setFormData(prev => ({ ...prev, selectedSkill: e.target.value }))}
+                          className="w-full pl-4 pr-10 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none appearance-none text-gray-400"
+                        >
+                          <option value="">Select skills...</option>
+                          {AVAILABLE_SKILLS.map(skill => (
+                            <option key={skill} value={skill}>{skill}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute top-3 right-3 text-gray-400 pointer-events-none" size={20} />
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleAddSkill(formData.selectedSkill)}
-                        className="px-6 py-3 bg-gray-900 text-gray-100 rounded-lg hover:bg-green-600 transition-colors"
+                        className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
                       >
-                        Add
+                        <Plus size={20} />
                       </button>
                     </div>
 
@@ -211,15 +230,15 @@ const SignUp = () => {
                       {formData.skills.map(skill => (
                         <span
                           key={skill}
-                          className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-600"
+                          className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
                         >
                           {skill}
                           <button
                             type="button"
                             onClick={() => handleRemoveSkill(skill)}
-                            className="ml-2 text-blue-400 hover:text-blue-600"
+                            className="ml-2 text-blue-600 hover:text-blue-800"
                           >
-                            ×
+                            <X size={14} />
                           </button>
                         </span>
                       ))}
@@ -232,7 +251,7 @@ const SignUp = () => {
                         onChange={handleInputChange}
                         placeholder="Tell us about yourself..."
                         rows={3}
-                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all outline-none resize-none"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none resize-none"
                         required
                       />
                     </div>
@@ -243,16 +262,16 @@ const SignUp = () => {
                 <button
                   type="submit"
                   disabled={status.isSubmitting}
-                  className="w-full bg-blue-600 text-white rounded-lg px-4 py-3 font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-blue-600 text-white rounded-lg px-4 py-3 font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {status.isSubmitting ? 'Creating account...' : 'Create account'}
                 </button>
 
                 <p className="text-center text-gray-600">
                   Already have an account?{' '}
-                  <a href="/login" className="text-blue-600 hover:underline font-medium">
+                  <Link href="/login" className="text-blue-600 hover:underline font-medium">
                     Sign in
-                  </a>
+                  </Link>
                 </p>
               </form>
             </div>
@@ -261,6 +280,4 @@ const SignUp = () => {
       </div>
     </div>
   );
-};
-
-export default SignUp;
+}

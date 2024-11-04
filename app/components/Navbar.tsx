@@ -1,11 +1,8 @@
-'use client'
-
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
-  UserCircle, 
   FolderGit2, 
   LogOut, 
   Mail, 
@@ -13,16 +10,19 @@ import {
   UserPlus,
   Menu,
   X,
-  Search
+  ChevronDown,
+  User
 } from "lucide-react"
 import SearchBar from "./SearchBar"
 
-export default function Navbar() {
+export default function Component({ userData = { fullName: 'Jane Smith' } }) {
+  console.log('userData:', userData);
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [query, setQuery] = useState('')
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const router = useRouter()
+  const dropdownRef = useRef(null)
 
   useEffect(() => {
     const user = sessionStorage.getItem("user")
@@ -32,13 +32,25 @@ export default function Navbar() {
       setIsScrolled(window.scrollY > 20)
     }
 
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false)
+      }
+    }
+
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
   }, [])
 
   const handleLogout = () => {
     sessionStorage.removeItem("user")
     setIsAuthenticated(false)
+    setIsProfileDropdownOpen(false)
     router.push("/login")
   }
 
@@ -77,21 +89,40 @@ export default function Navbar() {
           >
             SkillSync
           </Link>
+          
           {/* Desktop Menu */}
-          <SearchBar/>
-          <div className="hidden md:flex items-center space-x-1 md:order-3">
+          <div className="hidden md:flex items-center space-x-4 ml-auto">
             {isAuthenticated ? (
               <>
+                <SearchBar />
                 <NavLink href="/dashboard" icon={LayoutDashboard}>Dashboard</NavLink>
-                <NavLink href="/profile" icon={UserCircle}>Profile</NavLink>
                 <NavLink href="/projects" icon={FolderGit2}>Projects</NavLink>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 text-gray-300 hover:text-red-400 transition-colors px-4 py-2 rounded-md"
-                >
-                  <LogOut size={20} />
-                  <span>Log Out</span>
-                </button>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors rounded-full"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-gray-700 border border-white flex justify-center items-center">
+                      <User size={16} className="text-white" />
+                    </div>
+                    <ChevronDown size={16} />
+                  </button>
+                  {isProfileDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md overflow-hidden shadow-xl z-10">
+                      <Link href="/profile" onClick={() => setIsProfileDropdownOpen(false)}>
+                        <span className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white">
+                          Manage Profile
+                        </span>
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                      >
+                        Log Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -108,7 +139,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden order-2">
+          <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-300 hover:text-white transition-colors"
@@ -121,11 +152,16 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4">
+            <SearchBar />
             {isAuthenticated ? (
               <>
                 <MobileNavLink href="/dashboard" icon={LayoutDashboard} onClick={() => setIsMobileMenuOpen(false)}>Dashboard</MobileNavLink>
-                <MobileNavLink href="/profile" icon={UserCircle} onClick={() => setIsMobileMenuOpen(false)}>Profile</MobileNavLink>
                 <MobileNavLink href="/projects" icon={FolderGit2} onClick={() => setIsMobileMenuOpen(false)}>Projects</MobileNavLink>
+                <MobileNavLink href="/profile" icon={() => (
+                  <div className="w-6 h-6 rounded-full bg-gray-700 border border-white flex justify-center items-center">
+                    <User size={12} className="text-white" />
+                  </div>
+                )} onClick={() => setIsMobileMenuOpen(false)}>Manage Profile</MobileNavLink>
                 <button
                   onClick={() => {
                     handleLogout()
