@@ -1,11 +1,11 @@
 'use client'
-
+import { updateDoc, doc, getDoc, deleteDoc } from 'firebase/firestore'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import React, { useEffect, useState } from 'react'
-import { doc, getDoc, deleteDoc } from 'firebase/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { deleteUser, sendPasswordResetEmail } from 'firebase/auth'
 import dayjs from 'dayjs'
-import { db, auth } from '../firebase/config'
+import { db, auth, storage } from '../firebase/config'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import {
@@ -25,6 +25,9 @@ import {
   Key
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+
+// Ensure that db and auth are correctly configured in '../firebase/config'
+// Ensure that Navbar and Footer components are correctly implemented in '../components/Navbar' and '../components/Footer'
 
 interface User {
   id: string

@@ -225,7 +225,8 @@ export default function Component() {
       const data = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      })) as Project[];
+        skillsRequired: [] // Add an empty array for the 'skillsRequired' property
+      })) as import("/home/neil/Projects/SkillSync/app/recommender/contentFiltering").Project[];
   
       let filteredProjects;
   
@@ -502,7 +503,7 @@ export default function Component() {
       </p>
       <a href={request.resumeURL} className="text-blue-400 hover:underline text-sm block mb-2 flex items-center">
         <FileText className="mr-2" />
-        Click here to view student's resume
+        Click here to view student&apos;s resume
       </a>
       <p className="text-sm text-gray-400 mb-4 flex items-center">
         <Calendar className="mr-2" />

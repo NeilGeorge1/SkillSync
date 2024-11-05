@@ -92,7 +92,7 @@ export default function Home() {
               How it Works
             </h2>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We connect students and mentors based on skill compatibility. Once matched, they can collaborate on projects and receive real-time feedback. Here's what makes us different:
+              We connect students and mentors based on skill compatibility. Once matched, they can collaborate on projects and receive real-time feedback. Here&apos;s what makes us different:
             </p>
           </div>
 
@@ -150,12 +150,12 @@ export default function Home() {
               {
                 name: "Sarah Lee",
                 role: "Mentor",
-                content: "Being a mentor on this platform has been incredibly rewarding. I've seen my mentees grow exponentially.",
+                content: "Being a mentor on this platform has been incredibly rewarding. I&apos;ve seen my mentees grow exponentially.",
               },
               {
                 name: "Michael Chen",
                 role: "Student",
-                content: "The collaborative projects gave me real-world experience that I couldn't get anywhere else.",
+                content: "The collaborative projects gave me real-world experience that I couldn&apos;t get anywhere else.",
               },
             ].map((review, index) => (
               <div
@@ -163,7 +163,7 @@ export default function Home() {
                 className="bg-gray-800 p-8 rounded-2xl shadow-xl fade-in opacity-0 translate-y-6 transition-all duration-700 ease-out"
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <p className="text-gray-300 mb-6">"{review.content}"</p>
+                <p className="text-gray-300 mb-6">&quot;{review.content}&quot;</p>
                 <div className="flex items-center">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xl font-bold mr-4">
                     {review.name[0]}
